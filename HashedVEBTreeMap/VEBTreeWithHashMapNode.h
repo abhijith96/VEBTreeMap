@@ -6,49 +6,44 @@
 #define DHCPALLOCATOR_VEBTREEWITHHASHMAPNODE_H
 
 #include <unordered_map>
+#include <concepts>
 #include <memory>
-#include <iostream>
+#include "VEBTreeKeyConcept.h"
+#include "VEBTreeValueConcept.h"
 
-using veb_hm_t = uint32_t;
 
 
-template <typename ValueType>
-class VEBTreeWithHashMapNode {
+template <VEBTreeKey KeyType, VEBTreeValue ValueType,typename Hash = std::hash<KeyType>, typename Equal = std::equal_to<KeyType>>
+class VEBTreeWithHashMapNode{
 private:
-    veb_hm_t universe_;
+    KeyType universe_;
     bool is_set_;
-    veb_hm_t min_;
-    veb_hm_t max_;
+    KeyType min_;
+    KeyType max_;
     std::unique_ptr<ValueType> min_value_;
     std::unique_ptr<ValueType> max_value_;
 
     std::unique_ptr<VEBTreeWithHashMapNode> summary_;
 
-    std::unordered_map<veb_hm_t, VEBTreeWithHashMapNode<ValueType>> cluster_map_;
+    std::unordered_map<KeyType, VEBTreeWithHashMapNode<KeyType, ValueType>, Hash, Equal> cluster_map_;
 
 
 public:
-   explicit VEBTreeWithHashMapNode(veb_hm_t universe) :universe_(universe), is_set_(false),
+   explicit VEBTreeWithHashMapNode(KeyType universe) :universe_(universe), is_set_(false),
    min_(), max_(){
    }
+
+    explicit VEBTreeWithHashMapNode(KeyType universe, Hash hashObj, Equal equalObj) :universe_(universe), is_set_(false),
+                                                       min_(), max_(), cluster_map_(16, hashObj, equalObj){
+    }
+
    VEBTreeWithHashMapNode& operator = (VEBTreeWithHashMapNode&& other) noexcept = default;
-//   VEBTreeWithHashMapNode& operator = (VEBTreeWithHashMapNode&& other) noexcept {
-//       if(this != &other){
-//           universe_ = other.universe_;
-//           is_set_ = other.is_set_;
-//           min_ = other.min_;
-//           max_ = other.max_;
-//           min_value_ = std::move(other.min_value_);
-//           max_value_ = std::move(other.max_value_);
-//           summary_ = std::move(other.summary_);
-//           cluster_map_ = std::move(other.cluster_map_);
-//       }
-//   }
+
 
    VEBTreeWithHashMapNode(VEBTreeWithHashMapNode && other) noexcept = default;
 
 
-   [[nodiscard]] veb_hm_t GetUniverse() const{
+   [[nodiscard]] KeyType GetUniverse() const{
        return universe_;
    }
 
@@ -60,15 +55,15 @@ public:
        is_set_ = false;
    }
 
-   [[nodiscard]] bool IsClusterSet(veb_hm_t clusterIndex) const{
+   [[nodiscard]] bool IsClusterSet(KeyType clusterIndex) const{
        return cluster_map_.find(clusterIndex) != cluster_map_.end();
    }
 
-   void SetCluster(veb_hm_t clusterIndex, veb_hm_t itemsCount){
+   void SetCluster(KeyType clusterIndex, KeyType itemsCount){
        cluster_map_.emplace(clusterIndex,itemsCount);
    }
 
-   void UnsetCluster(veb_hm_t clusterIndex){
+   void UnsetCluster(KeyType clusterIndex){
        cluster_map_.erase(clusterIndex);
    }
 
@@ -76,31 +71,31 @@ public:
        summary_.reset();
    }
 
-   VEBTreeWithHashMapNode<ValueType>& GetCluster(veb_hm_t clusterIndex){
+   VEBTreeWithHashMapNode<KeyType, ValueType>& GetCluster(KeyType clusterIndex){
        auto itr = cluster_map_.find(clusterIndex);
        assert(itr != cluster_map_.end());
        return itr->second;
    }
 
-   VEBTreeWithHashMapNode<ValueType>& GetSummary(){
+   VEBTreeWithHashMapNode<KeyType,ValueType>& GetSummary(){
        assert(summary_);
        return *summary_;
    }
 
-   void SetSummary(veb_hm_t clusterCount){
-       summary_ = std::move(std::make_unique<VEBTreeWithHashMapNode<ValueType>>(clusterCount));
+   void SetSummary (KeyType clusterCount){
+       summary_ = std::move(std::make_unique<VEBTreeWithHashMapNode<KeyType,ValueType>>(clusterCount));
    }
 
    [[nodiscard]] bool IsSummarySet() const{
        return summary_.get() != nullptr;
    }
 
-   void SetMinKey(veb_hm_t key) {
+   void SetMinKey(KeyType key) {
         min_ = key;
         is_set_ = true;
    }
 
-   void SetMaxKey(veb_hm_t key){
+   void SetMaxKey(KeyType key){
        max_ = key;
        is_set_ = true;
    }
@@ -113,11 +108,11 @@ public:
        max_value_ = std::move(std::make_unique<ValueType>(valueType));
    }
 
-   [[nodiscard]] veb_hm_t GetMinKey() const{
+   [[nodiscard]] KeyType GetMinKey() const{
        return min_;
    }
 
-   [[nodiscard]] veb_hm_t GetMaxKey() const{
+   [[nodiscard]] KeyType GetMaxKey() const{
        return max_;
    }
 

@@ -3,13 +3,14 @@
 //
 
 #include "VEBTreeWithHashMap.h"
+#include <iostream>
 
 
 int main(){
 
-    constexpr veb_hm_t  universe = 16;
+    constexpr uint32_t universe = 16;
 
-   VEBTreeWithHashMap<int> vebTreeWithHashMap{16};
+   VEBTreeWithHashMap<uint32_t,int> vebTreeWithHashMap{16};
 
    vebTreeWithHashMap.Insert(1,5);
 

@@ -4,6 +4,8 @@
 
 #ifndef DHCPALLOCATOR_VEBTREENODEKEYTYPE_H
 
+#define DHCPALLOCATOR_VEBTREENODEKEYTYPE_H
+
 #include <cstdint>
 
 enum class VEBTreeNodeKeyType : uint8_t {
@@ -12,8 +14,6 @@ enum class VEBTreeNodeKeyType : uint8_t {
     NEGATIVE_INFINITY = 2
 };
 
-
-#define DHCPALLOCATOR_VEBTREENODEKEYTYPE_H
 
 
 

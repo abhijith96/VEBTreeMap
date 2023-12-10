@@ -9,30 +9,32 @@
 #include "VEBTreeNodeKeyType.h"
 #include <memory>
 
-template <class ValueType>
+template <VEBTreeKey KeyType, VEBTreeValue ValueType,typename Hash = std::hash<KeyType>, typename Equal = std::equal_to<KeyType>>
 class VEBTreeWithHashMap {
 private:
-   std::unique_ptr<VEBTreeWithHashMapNode<ValueType>> root_veb_tree_;
-   void InsertHelper(VEBTreeWithHashMapNode<ValueType>& currentNode, veb_hm_t key, ValueType value);
+   std::unique_ptr<VEBTreeWithHashMapNode<KeyType, ValueType, Hash, Equal>> root_veb_tree_;
+   void InsertHelper(VEBTreeWithHashMapNode<KeyType,ValueType, Hash, Equal>& currentNode, KeyType key, ValueType value);
 
-   void DeleteHelper(VEBTreeWithHashMapNode<ValueType>& currentNode, veb_hm_t key);
+   void DeleteHelper(VEBTreeWithHashMapNode<KeyType,ValueType, Hash, Equal>& currentNode, KeyType key);
 
-    std::tuple<VEBTreeNodeKeyType, veb_hm_t, ValueType> GetSuccessorHelper(VEBTreeWithHashMapNode<ValueType>& currentNode, veb_hm_t key);
+    std::tuple<VEBTreeNodeKeyType, KeyType, ValueType> GetSuccessorHelper(VEBTreeWithHashMapNode<KeyType,ValueType, Hash, Equal>& currentNode, KeyType key);
 
-    std::tuple<VEBTreeNodeKeyType, veb_hm_t, ValueType> GetPredecessorHelper(VEBTreeWithHashMapNode<ValueType>& currentNode, veb_hm_t key);
+    std::tuple<VEBTreeNodeKeyType, KeyType, ValueType> GetPredecessorHelper(VEBTreeWithHashMapNode<KeyType,ValueType, Hash, Equal>& currentNode, KeyType key);
 
-    veb_hm_t High(veb_hm_t key, veb_hm_t universe);
+    KeyType High(KeyType key, KeyType universe);
 
-    veb_hm_t Low(veb_hm_t key, veb_hm_t universe);
+    KeyType Low(KeyType key, KeyType universe);
 
-    veb_hm_t Index(veb_hm_t key, veb_hm_t lowKey, veb_hm_t universe);
+    KeyType Index(KeyType key, KeyType lowKey, KeyType universe);
 
-    veb_hm_t GetItemsCount(veb_hm_t universe);
+    KeyType GetItemsCount(KeyType universe);
 
-    veb_hm_t GetClusterCount(veb_hm_t universe);
+    KeyType GetClusterCount(KeyType universe);
 
 public:
-   explicit VEBTreeWithHashMap(veb_hm_t universe);
+   explicit VEBTreeWithHashMap(KeyType universe);
+
+   explicit VEBTreeWithHashMap(KeyType universe, Hash hashObj, Equal equalObj);
 
    VEBTreeWithHashMap(VEBTreeWithHashMap && other) noexcept;
 
@@ -40,18 +42,18 @@ public:
 
 
 
-    std::tuple<bool, veb_hm_t, ValueType> FindKey(veb_hm_t key);
+    std::tuple<bool, KeyType, ValueType> FindKey(KeyType key);
 
-   std::pair<bool, std::reference_wrapper<ValueType>> GetValue(veb_hm_t key);
+   std::pair<bool, std::reference_wrapper<ValueType>> GetValue(KeyType key);
 
 
-    void Insert(veb_hm_t key, ValueType value);
+    void Insert(KeyType key, ValueType value);
 
-    void Delete(veb_hm_t key);
+    void Delete(KeyType key);
 
-    std::tuple<VEBTreeNodeKeyType, veb_hm_t, ValueType> Successor(veb_hm_t key);
+    std::tuple<VEBTreeNodeKeyType, KeyType, ValueType> Successor(KeyType key);
 
-    std::tuple<VEBTreeNodeKeyType, veb_hm_t , ValueType> Predecessor(veb_hm_t key);
+    std::tuple<VEBTreeNodeKeyType, KeyType , ValueType> Predecessor(KeyType key);
 
     [[nodiscard]] bool IsEmpty() const;
 };

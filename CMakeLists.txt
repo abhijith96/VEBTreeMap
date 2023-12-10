@@ -14,6 +14,9 @@ target_include_directories(Exec PUBLIC
         "${PROJECT_BINARY_DIR}"
         )
 
-enable_testing()
-add_subdirectory(Tests)
+option(ENABLE_TESTING "Add Tests To Build" OFF)
+if(ENABLE_TESTING)
+    enable_testing()
+    add_subdirectory(Tests)
+endif()
 
